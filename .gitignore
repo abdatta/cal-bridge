@@ -4,3 +4,6 @@ token.json
 credentials.json
 .env
 *.js.map
+
+*.log
+*.txt
