@@ -66,6 +66,7 @@ const credentials = {
 
 const client = new CalendarEmailClient({
   credentials, // Required
+  debug: true, // Optional: Enable console logs (default: false)
 });
 
 await client.connect(); // Authenticates + starts polling
@@ -107,15 +108,16 @@ await client.disconnect();
 
 ### `new CalendarEmailClient(config?)`
 
-| Option                | Type     | Default                                 | Description                        |
-| --------------------- | -------- | --------------------------------------- | ---------------------------------- |
-| `senderEmail`         | `string` | `abdatta1998@gmail.com`                 | Gmail address to send from         |
-| `recipientEmail`      | `string` | `abhishek.datta.2027@anderson.ucla.edu` | Address to send requests to        |
-| `responseSenderEmail` | `string` | `abhishek.datta.2027@anderson.ucla.edu` | Address that sends response emails |
-| `credentials`         | `object` | **Required**                            | Google OAuth credentials object    |
-| `tokenPath`           | `string` | `token.json`                            | Path to store/load OAuth tokens    |
-| `pollIntervalMs`      | `number` | `3000`                                  | Inbox polling interval (ms)        |
-| `requestTimeoutMs`    | `number` | `60000`                                 | Request timeout (ms)               |
+| Option                | Type      | Default                                 | Description                        |
+| --------------------- | --------- | --------------------------------------- | ---------------------------------- |
+| `senderEmail`         | `string`  | `abdatta1998@gmail.com`                 | Gmail address to send from         |
+| `recipientEmail`      | `string`  | `abhishek.datta.2027@anderson.ucla.edu` | Address to send requests to        |
+| `responseSenderEmail` | `string`  | `abhishek.datta.2027@anderson.ucla.edu` | Address that sends response emails |
+| `credentials`         | `object`  | **Required**                            | Google OAuth credentials object    |
+| `tokenPath`           | `string`  | `token.json`                            | Path to store/load OAuth tokens    |
+| `debug`               | `boolean` | `false`                                 | Enable console logging             |
+| `pollIntervalMs`      | `number`  | `3000`                                  | Inbox polling interval (ms)        |
+| `requestTimeoutMs`    | `number`  | `60000`                                 | Request timeout (ms)               |
 
 ### Methods
 
@@ -145,30 +147,49 @@ await client.disconnect();
 
 **Response matching:** Primary key = `requestId`, secondary = `threadId`
 
-## Error Handling
+## Error Handling & Response Structure
+
+All public API methods (e.g., `listEvents`, `createEvent`) dependably return a JSON `ApiResponse` object, even in case of failure. The client **does not throw** exceptions for API failures (unless critical setup issues occur outside the request flow).
+
+### Success Response
+
+```json
+{
+  "status": "success",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "data": { ... },
+  "durationMs": 1420
+}
+```
+
+### Error Response
+
+```json
+{
+  "status": "error",
+  "error": "Request timed out after 60000ms",
+  "data": { "code": "TIMEOUT" },
+  "durationMs": 60005
+}
+```
+
+### Example Usage
 
 ```typescript
-import { CalendarApiError, ErrorCodes } from "cal-bridge";
+const response = await client.listEvents(start, end);
 
-try {
-  await client.listEvents(start, end);
-} catch (error) {
-  if (error instanceof CalendarApiError) {
-    switch (error.code) {
-      case ErrorCodes.TIMEOUT:
-        console.log("Request timed out");
-        break;
-      case ErrorCodes.AUTH_FAILED:
-        console.log("Authentication failed");
-        break;
-      case ErrorCodes.SEND_FAILED:
-        console.log("Failed to send email");
-        break;
-      case ErrorCodes.INVALID_RESPONSE:
-        console.log("Invalid response received");
-        break;
-    }
+console.log(`Call took ${response.durationMs}ms`);
+
+if (response.status === "error") {
+  // Gracefully handle the error
+  console.error("Failed to fetch events:", response.error);
+
+  if (response.data?.code === "TIMEOUT") {
+    // Handle timeout specifically
   }
+} else {
+  // Process data
+  console.log(response.data);
 }
 ```
 

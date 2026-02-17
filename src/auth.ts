@@ -13,6 +13,7 @@ import {
   ErrorCodes,
   GmailClient,
 } from "./types.js";
+import { Logger } from "./logger.js";
 
 const REDIRECT_PORT = 3847;
 const REDIRECT_URI = `http://localhost:${REDIRECT_PORT}/oauth2callback`;
@@ -37,9 +38,11 @@ export class GmailAuth {
   private config: CalendarClientConfig;
   private oauth2Client: OAuth2Client | null = null;
   private gmailClient: GmailClient | null = null;
+  private logger: Logger;
 
-  constructor(config: CalendarClientConfig) {
+  constructor(config: CalendarClientConfig, logger: Logger) {
     this.config = config;
+    this.logger = logger;
   }
 
   /**
@@ -201,7 +204,7 @@ export class GmailAuth {
     this.oauth2Client.setCredentials(tokens);
     await this.saveToken(tokens as TokenData);
 
-    console.log("✅ Authentication successful! Tokens saved.\n");
+    this.logger.log("✅ Authentication successful! Tokens saved.\n");
   }
 
   /**

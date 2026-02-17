@@ -10,6 +10,7 @@ import {
   ErrorCodes,
 } from "./types.js";
 import * as fs from "fs";
+import { Logger } from "./logger.js";
 
 /**
  * Polls the Gmail inbox for a reply email matching a specific Request ID.
@@ -23,6 +24,7 @@ export class ResponseWatcher {
   private timeoutMs: number;
   private startTime: number;
   private processedMessageIds: Set<string> = new Set();
+  private logger: Logger;
 
   constructor(
     gmail: GmailClient,
@@ -30,12 +32,14 @@ export class ResponseWatcher {
     requestId: string,
     pollIntervalMs: number = 2000,
     timeoutMs: number = 30000,
+    logger: Logger,
   ) {
     this.gmail = gmail;
     this.responseSenderEmail = responseSenderEmail;
     this.requestId = requestId;
     this.pollIntervalMs = pollIntervalMs;
     this.timeoutMs = timeoutMs;
+    this.logger = logger;
     this.startTime = Date.now();
   }
 
@@ -43,7 +47,7 @@ export class ResponseWatcher {
    * Polls until the specific response is found or timeout occurs.
    */
   async waitForResponse(): Promise<ApiResponse> {
-    console.log(
+    this.logger.log(
       `[ResponseWatcher] Waiting for response to ${this.requestId}...`,
     );
     return new Promise<ApiResponse>((resolve, reject) => {
@@ -62,13 +66,13 @@ export class ResponseWatcher {
         try {
           const response = await this.poll();
           if (response) {
-            process.stdout.write(`Found response for ${this.requestId}\n`);
+            this.logger.log(`Found response for ${this.requestId}\n`);
             resolve(response);
           } else {
             setTimeout(check, this.pollIntervalMs);
           }
         } catch (err) {
-          console.error(
+          this.logger.error(
             `[ResponseWatcher] Error polling for ${this.requestId}:`,
             err,
           );
@@ -214,7 +218,7 @@ export class ResponseWatcher {
     requestId: string,
     messageId: string,
   ): ApiResponse | null {
-    console.log(`[ResponseWatcher] Extracting response for ${requestId}`);
+    this.logger.log(`[ResponseWatcher] Extracting response for ${requestId}`);
     // Strip email history if delimiter is present
     // We want to keep the NEW content (at the top), so we take substring(0, index)
     const delimiter = "________________________________________";

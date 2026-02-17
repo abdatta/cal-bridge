@@ -65,32 +65,29 @@ async function main() {
 
   try {
     // Step 1: Connect (authenticate + start polling)
-    console.log("🔗 Connecting to CalBridge...");
+    // console.log("🔗 Connecting to CalBridge...");
     await client.connect();
-    console.log("✅ Connected!\n");
+    // console.log("✅ Connected!\n");
 
     // Step 2: Health check
-    console.log("💓 Running health check...");
+    // console.log("💓 Running health check...");
     const health = await client.healthCheck();
-    console.log("Health check result:", JSON.stringify(health, null, 2));
-    console.log("");
+    // console.log("Health check result:", JSON.stringify(health, null, 2));
+    // console.log("");
 
     // Step 3: List events
-    console.log("📋 Listing events for TODAY (2026-02-16)...");
+    // console.log("📋 Listing events for TODAY (2026-02-16)...");
     const events = await client.listEvents(
       "2026-02-16T00:00:00Z",
       "2026-02-16T23:59:59Z",
     );
-    console.log("Events:", JSON.stringify(events, null, 2));
-    console.log("");
-
-    // Waiting for a bit to ensure we catch the response if it's slow/async
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    return;
+    console.log(JSON.stringify(events, null, 2));
+    // console.log("Events:", JSON.stringify(events, null, 2));
+    // console.log("");
 
     /*
     // Step 4: Create an event
-    console.log("➕ Creating event...");
+    // console.log("➕ Creating event...");
     const created = await client.createEvent({
       subject: "Team Standup",
       start: "2026-02-17T09:00:00Z",
@@ -98,8 +95,8 @@ async function main() {
       location: "Zoom",
       body: "Daily team sync",
     });
-    console.log("Created:", JSON.stringify(created, null, 2));
-    console.log("");
+    // console.log("Created:", JSON.stringify(created, null, 2));
+    // console.log("");
 
     // Step 5: Update the event
     if (
@@ -108,30 +105,30 @@ async function main() {
       "id" in (created.data as any)
     ) {
       const eventId = (created.data as any).id;
-      console.log("✏️ Updating event...");
+      // console.log("✏️ Updating event...");
       const updated = await client.updateEvent({
         id: eventId,
         subject: "Team Standup (Updated)",
         location: "Google Meet",
       });
-      console.log("Updated:", JSON.stringify(updated, null, 2));
-      console.log("");
+      // console.log("Updated:", JSON.stringify(updated, null, 2));
+      // console.log("");
 
       // Step 6: Delete the event
-      console.log("🗑️ Deleting event...");
+      // console.log("🗑️ Deleting event...");
       const deleted = await client.deleteEvent(eventId);
-      console.log("Deleted:", JSON.stringify(deleted, null, 2));
-      console.log("");
+      // console.log("Deleted:", JSON.stringify(deleted, null, 2));
+      // console.log("");
     }
 
     // Step 7: Multiple concurrent requests
-    console.log("⚡ Sending concurrent requests...");
+    // console.log("⚡ Sending concurrent requests...");
     const [healthResult, listResult] = await Promise.all([
       client.healthCheck(),
       client.listEvents("2026-02-01T00:00:00Z", "2026-02-28T00:00:00Z"),
     ]);
-    console.log("Concurrent health:", healthResult.status);
-    console.log("Concurrent list:", JSON.stringify(listResult.data, null, 2));
+    // console.log("Concurrent health:", healthResult.status);
+    // console.log("Concurrent list:", JSON.stringify(listResult.data, null, 2));
     */
   } catch (error) {
     if (error instanceof CalendarApiError) {
@@ -144,7 +141,7 @@ async function main() {
     }
   } finally {
     await client.disconnect();
-    console.log("\n👋 Done.");
+    // console.log("\n👋 Done.");
   }
 }
 

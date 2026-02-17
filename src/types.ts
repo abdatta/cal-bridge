@@ -38,6 +38,9 @@ export interface CalendarClientConfig {
 
   /** Gmail API scopes required */
   scopes: string[];
+
+  /** Whether to enable debug logging (default: false) */
+  debug?: boolean;
 }
 
 export interface GoogleCredentials {
@@ -56,6 +59,7 @@ export interface ApiResponse {
   data?: unknown;
   error?: string;
   messageId?: string; // The Gmail message ID of the response
+  durationMs?: number; // Total execution time in milliseconds
 }
 
 // ============================================================
