@@ -75,11 +75,11 @@ async function main() {
     await client.connect();
     console.log("✅ Connected!\n");
 
-    // // Step 2: Health check
-    // console.log("💓 Running health check...");
-    // const health = await client.healthCheck();
-    // console.log("Health check result:", JSON.stringify(health, null, 2));
-    // console.log("");
+    // Step 2: Health check
+    console.log("💓 Running health check...");
+    const health = await client.healthCheck();
+    console.log("Health check result:", JSON.stringify(health, null, 2));
+    console.log("");
 
     // Step 3: List events
     console.log("📋 Listing events for TODAY (2026-02-16)...");

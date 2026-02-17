@@ -140,19 +140,47 @@ export class CalendarEmailClient {
   // Internal: Request Orchestration
   // ============================================================
 
+  // ============================================================
+  // Internal: Request Orchestration
+  // ============================================================
+
+  /**
+   * List of API actions that are currently supported by the backend.
+   * Actions not in this list will be skipped (no-op).
+   *
+   * Supported actions: 'list', 'create', 'update', 'event' (delete), 'health'
+   */
+  private readonly supportedActions: ApiAction[] = ["list"];
+
   /**
    * Core method: send a request email and wait for the matching response.
    *
-   * 1. Validates connection
-   * 2. Sends email via Gmail API
-   * 3. Starts a watcher for the response
-   * 4. Returns the response
+   * 1. Checks if action is supported
+   * 2. Validates connection
+   * 3. Sends email via Gmail API
+   * 4. Starts a watcher for the response
+   * 5. Returns the response
    */
   private async sendRequest(
     method: ApiMethod,
     action: ApiAction,
     payload: Record<string, unknown>,
   ): Promise<ApiResponse> {
+    // Check if the action is currently supported
+    if (!this.supportedActions.includes(action)) {
+      console.warn(
+        `⚠️ [CalBridge] '${action}' action is not currently supported by the backend (only 'Get list' is). This request is a no-op and will be fully implemented later.`,
+      );
+      return {
+        status: "skipped",
+        requestId: "no-op",
+        data: {
+          message:
+            "Not implemented in backend yet. This action is currently disabled in the client.",
+        },
+      };
+    }
+
     this.ensureConnected();
 
     // Send the email

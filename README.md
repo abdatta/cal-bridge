@@ -10,6 +10,11 @@ Application Code → CalendarEmailClient → Gmail OAuth → Send Email → Powe
                    Return parsed result ← Match requestId ← Parse JSON ← Receive Reply Email
 ```
 
+> [!NOTE]
+> **Current Limitations**: As of this version, the Power Automate backend only supports the **Get list** API (`listEvents`). All other methods (`createEvent`, `updateEvent`, `deleteEvent`) are currently **no-ops** in this client library. They will log a warning and return a skipped status without sending an email.
+>
+> **Developer Note**: Supported actions are configured via the `supportedActions` list in `src/client.ts`. As the backend adds support for more actions, add them to this list to enable them in the client.
+
 ## Quick Start
 
 ### 1. Prerequisites
