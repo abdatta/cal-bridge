@@ -1,0 +1,34 @@
+{
+  "name": "cal-bridge",
+  "version": "1.0.0",
+  "description": "CalBridge — A client library that bridges calendar systems through Gmail email-based API protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noEmit",
+    "demo": "npm run build && ts-node examples/basic-usage.ts"
+  },
+  "keywords": [
+    "gmail",
+    "oauth",
+    "calendar",
+    "email-api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "googleapis": "^144.0.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.3"
+  }
+}
