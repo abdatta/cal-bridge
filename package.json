@@ -9,7 +9,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit",
-    "demo": "npm run build && ts-node examples/basic-usage.ts"
+    "demo": "npm run build && ts-node examples/basic-usage.ts",
+    "prepare": "npm run build"
   },
   "keywords": [
     "gmail",
