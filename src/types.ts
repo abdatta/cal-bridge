@@ -24,8 +24,8 @@ export interface CalendarClientConfig {
   /** Email address that sends response emails (for filtering inbox) */
   responseSenderEmail: string;
 
-  /** Path to Google OAuth credentials.json */
-  credentialsPath: string;
+  /** Google OAuth credentials */
+  credentials: GoogleCredentials;
 
   /** Path to store/load OAuth token.json */
   tokenPath: string;
@@ -38,6 +38,12 @@ export interface CalendarClientConfig {
 
   /** Gmail API scopes required */
   scopes: string[];
+}
+
+export interface GoogleCredentials {
+  client_id: string;
+  client_secret: string;
+  redirect_uris?: string[];
 }
 
 // ============================================================

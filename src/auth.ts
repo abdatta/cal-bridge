@@ -17,19 +17,6 @@ import {
 const REDIRECT_PORT = 3847;
 const REDIRECT_URI = `http://localhost:${REDIRECT_PORT}/oauth2callback`;
 
-interface CredentialsFile {
-  installed?: {
-    client_id: string;
-    client_secret: string;
-    redirect_uris?: string[];
-  };
-  web?: {
-    client_id: string;
-    client_secret: string;
-    redirect_uris?: string[];
-  };
-}
-
 interface TokenData {
   access_token: string;
   refresh_token?: string;
@@ -61,15 +48,20 @@ export class GmailAuth {
    */
   async authenticate(): Promise<GmailClient> {
     try {
-      // Load OAuth2 client from credentials file
-      const credentials = await this.loadCredentials();
-      const { client_id, client_secret } =
-        credentials.installed ?? credentials.web!;
+      // Use credentials from config
+      const { client_id, client_secret, redirect_uris } =
+        this.config.credentials;
+
+      // Use the first redirect URI or a default
+      const redirectUri =
+        redirect_uris && redirect_uris.length > 0
+          ? redirect_uris[0]
+          : REDIRECT_URI;
 
       this.oauth2Client = new google.auth.OAuth2(
         client_id,
         client_secret,
-        REDIRECT_URI,
+        redirectUri,
       );
 
       // Try to load existing token
@@ -124,19 +116,6 @@ export class GmailAuth {
   // ----------------------------------------------------------
   // Private helpers
   // ----------------------------------------------------------
-
-  private async loadCredentials(): Promise<CredentialsFile> {
-    try {
-      const content = await fs.readFile(this.config.credentialsPath, "utf-8");
-      return JSON.parse(content) as CredentialsFile;
-    } catch {
-      throw new CalendarApiError(
-        `Could not load credentials from ${this.config.credentialsPath}. ` +
-          "Download OAuth credentials from Google Cloud Console.",
-        ErrorCodes.AUTH_FAILED,
-      );
-    }
-  }
 
   private async loadToken(): Promise<TokenData | null> {
     try {

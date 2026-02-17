@@ -48,22 +48,25 @@ npm run build
 
 ### 4. Environment Setup
 
-Create a `.env` file in your project root (see `.env.example`):
-
-```env
-GOOGLE_CLIENT_ID=your-client-id
-GOOGLE_CLIENT_SECRET=your-client-secret
-GOOGLE_PROJECT_ID=your-project-id
-```
-
-Or, place a `credentials.json` from Google Cloud Console directly in the project root.
+Or obtain a `credentials.json` from Google Cloud Console.
 
 ### 5. Usage
+
+You must providing the credentials object to the client. You can load this from a file or environment variables.
 
 ```typescript
 import { CalendarEmailClient } from "cal-bridge";
 
-const client = new CalendarEmailClient();
+// Example: Loading from env vars or a JSON file
+const credentials = {
+  client_id: process.env.GOOGLE_CLIENT_ID,
+  client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  redirect_uris: ["http://localhost:3847/oauth2callback"],
+};
+
+const client = new CalendarEmailClient({
+  credentials, // Required
+});
 
 await client.connect(); // Authenticates + starts polling
 
@@ -109,7 +112,7 @@ await client.disconnect();
 | `senderEmail`         | `string` | `abdatta1998@gmail.com`                 | Gmail address to send from         |
 | `recipientEmail`      | `string` | `abhishek.datta.2027@anderson.ucla.edu` | Address to send requests to        |
 | `responseSenderEmail` | `string` | `abhishek.datta.2027@anderson.ucla.edu` | Address that sends response emails |
-| `credentialsPath`     | `string` | `credentials.json`                      | Path to Google OAuth credentials   |
+| `credentials`         | `object` | **Required**                            | Google OAuth credentials object    |
 | `tokenPath`           | `string` | `token.json`                            | Path to store/load OAuth tokens    |
 | `pollIntervalMs`      | `number` | `3000`                                  | Inbox polling interval (ms)        |
 | `requestTimeoutMs`    | `number` | `60000`                                 | Request timeout (ms)               |

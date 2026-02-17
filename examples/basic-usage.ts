@@ -20,53 +20,47 @@ import * as path from "path";
 import { CalendarEmailClient, CalendarApiError } from "../dist/index.js";
 
 /**
- * Generate a credentials.json from environment variables
- * so you don't need to manually place the file.
+ * Load credentials from credentials.json or environment variables.
  */
-async function ensureCredentials(credentialsPath: string): Promise<void> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const projectId = process.env.GOOGLE_PROJECT_ID;
+async function getCredentials(): Promise<any> {
+  const credentialsPath = path.resolve("credentials.json");
 
-  if (!clientId || !clientSecret) {
-    // Check if credentials.json already exists
-    try {
-      await fs.access(credentialsPath);
-      return; // File exists, use it
-    } catch {
-      console.error("❌ Missing Google OAuth credentials.");
-      console.error(
-        "   Either set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env",
-      );
-      console.error("   or place a credentials.json file in the project root.");
-      process.exit(1);
-    }
+  // 1. Try to read from credentials.json
+  try {
+    const content = await fs.readFile(credentialsPath, "utf-8");
+    const json = JSON.parse(content);
+    return json.installed || json.web;
+  } catch {
+    // Ignore error, try env vars
   }
 
-  // Build credentials.json from env vars
-  const credentials = {
-    installed: {
+  // 2. Try environment variables
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI || "http://localhost:3847/oauth2callback";
+
+  if (clientId && clientSecret) {
+    return {
       client_id: clientId,
       client_secret: clientSecret,
-      project_id: projectId ?? "cal-bridge",
-      auth_uri: "https://accounts.google.com/o/oauth2/auth",
-      token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-      redirect_uris: ["http://localhost:3847/oauth2callback"],
-    },
-  };
+      redirect_uris: [redirectUri],
+    };
+  }
 
-  await fs.writeFile(credentialsPath, JSON.stringify(credentials, null, 2));
-  console.log("📄 Generated credentials.json from .env variables\n");
+  console.error("❌ Missing Google OAuth credentials.");
+  console.error(
+    "   Please provide a credentials.json file OR set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env",
+  );
+  process.exit(1);
 }
 
 async function main() {
-  const credentialsPath = path.resolve("credentials.json");
-  await ensureCredentials(credentialsPath);
+  const credentials = await getCredentials();
 
   // Create client (uses defaults from config.ts)
   const client = new CalendarEmailClient({
-    credentialsPath,
+    credentials,
   });
 
   try {

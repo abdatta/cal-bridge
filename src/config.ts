@@ -5,11 +5,10 @@
 import { CalendarClientConfig } from "./types.js";
 
 /** Default configuration values */
-export const DEFAULT_CONFIG: CalendarClientConfig = {
+export const DEFAULT_CONFIG: Partial<CalendarClientConfig> = {
   senderEmail: "abdatta1998@gmail.com",
   recipientEmail: "abhishek.datta.2027@anderson.ucla.edu",
   responseSenderEmail: "abhishek.datta.2027@anderson.ucla.edu",
-  credentialsPath: "credentials.json",
   tokenPath: "token.json",
   pollIntervalMs: 3000,
   requestTimeoutMs: 180000,
@@ -27,10 +26,10 @@ export const DEFAULT_CONFIG: CalendarClientConfig = {
 export function resolveConfig(
   partial?: Partial<CalendarClientConfig>,
 ): CalendarClientConfig {
-  const config: CalendarClientConfig = {
+  const config = {
     ...DEFAULT_CONFIG,
     ...partial,
-  };
+  } as CalendarClientConfig;
 
   // Validation
   if (!config.senderEmail) {
@@ -39,9 +38,16 @@ export function resolveConfig(
   if (!config.recipientEmail) {
     throw new Error("Config: recipientEmail is required");
   }
-  if (!config.credentialsPath) {
-    throw new Error("Config: credentialsPath is required");
+  if (!config.credentials) {
+    throw new Error("Config: credentials object is required");
   }
+  // Validate credentials structure
+  if (!config.credentials.client_id || !config.credentials.client_secret) {
+    throw new Error(
+      "Config: credentials must contain client_id and client_secret",
+    );
+  }
+
   if (config.pollIntervalMs < 500) {
     throw new Error("Config: pollIntervalMs must be at least 500ms");
   }
